@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import Header from './components/Header'
+import SideMenu from './components/SideMenu';
+import Posts from './components/Posts';
+import FeedMenu from './components/FeedMenu';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface PostsType {
+  id:number,
+  title: string,
+  reactions: {likes:number, dislikes:number},
+  userId:number
 }
+
+const App: React.FC = () => {
+
+  const [posts, setPosts] = useState<PostsType[]>([]);
+  const [filter, setFilter] = useState({sort: '', query: ''})
+
+  useEffect(() => {
+      const fetchPosts = async () => {
+          const data = await fetch('https://dummyjson.com/posts?limit=10&skip=10&select=title,reactions,userId')
+          .then(res => res.json())
+          setPosts(data.posts)
+          return true;
+      }
+      fetchPosts()
+  }, []);
+
+  return (
+      <div className='wrapper'>
+          <Header />
+          <div className='container'>
+              <SideMenu />
+              <Posts posts={posts}/>
+              <FeedMenu filter={filter} setFilter={setFilter}/>
+          </div>
+      </div>
+  );
+};
 
 export default App;
